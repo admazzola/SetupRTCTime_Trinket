@@ -1,7 +1,7 @@
 /*
  *
  * RTC clock is set based on hardcoded value! (unix tim
- *
+ *pin 1 has an LED for blink debugging
  */
 
 #include <Time.h>  
@@ -13,8 +13,7 @@ const unsigned long DOWNLOAD_TIME = 1422315564; //time when doing the download..
 
 void setup()  {
   
-  setSyncProvider(RTC.get);   // the function to get the time from the RTC
-   setSyncInterval(10);//every 10 secs, sync with the RTC
+ 
  
  /* if (timeStatus() != timeSet) 
      Serial.println("Unable to sync with the RTC");
