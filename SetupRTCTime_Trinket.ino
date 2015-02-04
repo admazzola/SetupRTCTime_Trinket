@@ -1,69 +1,42 @@
-/*
- *
- * RTC clock is set based on hardcoded value! (unix tim
- *pin 1 has an LED for blink debugging
- */
+// Date and time functions using a DS1307 RTC connected via I2C and Wire lib
 
-#include <Time.h>  
-#include <Wire.h>  
-#include <DS1307RTC.h>  // a basic DS1307 library that returns time as a time_t
+#include <TinyWireM.h>
+#include <TinyRTClib.h>
 
-const unsigned long DOWNLOAD_TIME = 1422315564; //time when doing the download..unix time since epoch
+RTC_DS1307 rtc;
 
-int ledPin = 1;
-
-void setup()  {
-  
-  setSyncProvider(RTC.get);   // the function to get the time from the RTC
-  
-  
- pinMode(ledPin, OUTPUT);      // sets the digital pin as output
+void setup () {
  
- /* if (timeStatus() != timeSet) 
-     Serial.println("Unable to sync with the RTC");
-  else
-     Serial.println("RTC has set the system time");      
-    */
-}
+#ifdef AVR
+  TinyWireM.begin();
+#else
+  Wire1.begin(); // Shield I2C pins connect to alt I2C bus on Arduino Due
+#endif
+  rtc.begin();
 
-void loop()
-{
-  
-    time_t t = DOWNLOAD_TIME;
+  if (! rtc.isrunning()) {
    
-      RTC.set(t);   // set the RTC and the system time to the received value
-      setTime(t);          
-    
-    
-    if(timeStatus() == timeSet){
-    debugBlink(1);//RTC got time, sent it back
-    }
-    
-    if(timeStatus() == timeNotSet){
-    debugBlink(3);//issue, RTC didnt get time
-    }
-    
-    if(timeStatus() == timeNeedsSync){
-    debugBlink(5);//issue, RTC didnt send time back to us
-    }
-    
-    
-    
-  delay(1000);
+    // following line sets the RTC to the date & time this sketch was compiled
+   rtc.adjust(DateTime(2015, 2, 3, 22, 16, 0));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+  }
 }
 
-
-
-void debugBlink(int count)
-{
-  int i=0;
-  for(i=0;i<count;i++)
-  {
-  digitalWrite(ledPin, HIGH);   // sets the LED on
-  delay(200);                  // waits for a second
-  digitalWrite(ledPin, LOW);    // sets the LED off
-  delay(200); 
-  }
-  
-  delay(4000);
+void loop () {
+    DateTime now = rtc.now();
+    
+    // calculate a date which is 7 days and 30 seconds into the future
+    DateTime future (now.unixtime() + 7 * 86400L + 30);
+   
+   
+   
+   for(i=0;i<now.day();i++){
+     delay(1000);
+   }
+   
+    delay(3000);
+    
+    
 }
